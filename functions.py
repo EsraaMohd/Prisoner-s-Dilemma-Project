@@ -1,29 +1,57 @@
-import sys
-sys.path.insert(0, '/strategies.py')
-import random
-import numpy as np
-import matplotlib.pyplot as plt
+# Firstly we imported all the needed libraries,packages and modules
+import sys            # The sys module provides information about constants, functions and methods of the Python interpreter
+sys.path.insert(0, '/strategies.py')   
+import random         #import random imports the random module, which contains a variety of things to do with random number 
+                      #generation
+import numpy as np    # we imported NumPy  in order to be able to perform a variety of mathematical operations on arrays
+import matplotlib.pyplot as plt    # we imported Matplotlib as it helps to plot graphs
 from strategies import Nice_guy, Bad_guy, Main_nice, Main_bad, Grudger, GoByMajority, Tit_for_tat, TitFor2Tats, SuspiciousTitForTat
-
-
+                                   # we import these functions from our Strategies python file           
+    
+    
 ## Iterative Prisoner's Dilemma
-# p1,p2 of type Player
-# turns: int; number of turns
-# return scores: 2D array of scores for both players
+# function that takes parameters/arguments
+    #P1:First Player
+    #P2:Second Player
+    #turns:integer that represents number of turns
+# return scores: 2D array of scores for both players in each iteration
 def IPD(p1, p2, turns=1):
     scores = [[],[]]
     for i in range(0,turns):
-        p1_move = p1.play() # 1 or 0
+        p1_move = p1.play() # 1 for cooperate or 0  for defect
         p2_move = p2.play()
         scores[0].append(p1.setScore(p1_move, p2_move)) # store in p1 history and return p1 score of this play
-        scores[1].append(p2.setScore(p2_move, p1_move))
+        scores[1].append(p2.setScore(p2_move, p1_move)) 
     return scores
 
-# generates player by startegy name
-# name: string; name of startegy
+#setScore function :calculates the score for each player in each iteration based on the movement of players in each iteration
+#append:add items to the existing list , it does not return a new list of items but will modify the original list
+#by adding the item to the end of the list
+
+
+#def setScore(self, self_move, opp_move):
+        #self.history.append(opp_move)
+        #T=3
+        #R=2
+        #P=1 
+        #S=0
+        #newScore = 0
+        #if (self_move == 1 and opp_move == 1): newScore = R
+        #elif (self_move == 1 and opp_move == 0): newScore = S # loser
+        #elif (self_move == 0 and opp_move == 1): newScore = T # winner
+        #else: newScore = P
+        #self.score += newScore
+        #return newScore
+
+
+
+
+# function that generates player by startegy name
+# name: string represents the name of startegy
+# we used lamda when we need a name for  funtion for a short period of time
 def strategyGenerator(name):
     strategy = {
-        'nice guy': (lambda: Nice_guy()),
+        'nice guy': (lambda: Nice_guy()),                    
         'bad guy': (lambda: Bad_guy()),
         'main nice': (lambda: Main_nice(random.randint(1, 49))),
         'main bad': (lambda: Main_bad(random.randint(51, 99) )),
@@ -35,20 +63,26 @@ def strategyGenerator(name):
     }
     # check if strategy name exists
     assert(name in strategy)
-    return strategy[name]()   #return a function
+# if the assert condition is evaluated to be true so continue execution to the next step
+    return strategy[name]()   #return a function 
+
+
     
 # create an array of players
-# playersNames: array of array; values of the array must be one of the startegies and the number of players who choose the this strategy
-# [['nice guy', 10], ['bad guy', 5]]
-# shuffle
-# return array of objects of type Player
+# playersNames: array of array; values of the array must be one of the startegies and the  player who choose 
+#this strategy
+# for example [['nice guy', 10], ['bad guy', 5]]
+# shuffle: takes a sequence like list and organize the order of items , this method changes the original list and does not 
+# return a new list
+# return array of objects of type Player that 
 
 def createPlayers(playersNames, shuffle=True):
     players = []
     for name, num in playersNames:
      
         for i in range(0,num):
-            players.append(strategyGenerator(name))
+            players.append(strategyGenerator(name))  #Loop on the strategies for each player to check how many players choose 
+                                                     # a specific strategy
     
     # shuffle
     if(shuffle): random.shuffle(players)
@@ -74,11 +108,13 @@ def calcAlpha(strategies):
         alphaDic[strategiesName[i]]= StrategyScore[i]
     return alphaDic
 
-# mode = 0 => len(output) = (#players,turns)
-# mode = 1 => len(output) = (#players,#players)
+# mode = 0 => (#players,#turns)
+# mode = 1 => (#players,#players)
 def MIPD(players, turns=1, mode=1):
-    if(mode == 1): scores = np.zeros([len(players),len(players)])
-    else: scores = np.zeros([len(players),turns])
+    if(mode == 1): 
+        scores = np.zeros([len(players),len(players)]) # to return the score of each player againt others
+    else: 
+        scores = np.zeros([len(players),turns])  # to return the score of player in each turn of play.
     for i in range(0,len(players)):
         for j in range(i+1,len(players)):
             _scores = IPD(players[i],players[j], turns)
@@ -136,28 +172,5 @@ def rMIPD(players, turns=1,iters=1, alpha=0.5):
             strats[strat] = avg # average score for each strategy
             _totalAvg += avg
         totals.append(_total)
-        # normalize scores of strategies then multiply by 100 and round it
-        spinner = []
-        for strat in strats:
-            strats[strat] = strats[strat] / _totalAvg # normalize scores
-            strats[strat] = int(round(strats[strat] * 100)) # eg. strats = { strat1: 40, strat2: 60}
-            # create spinner weel to be used in random selection
-            spinner = np.append(spinner, [stratId[strat] for i in range(0,strats[strat])])
-            # eg. spinner = [start1_id, start1_id,... 40 times, start2_id,.. x60 times]
-        # Calculate alpha for each strategy if needed
-        if(alpha == -1):
-            alphas = calcAlpha(strats) 
-        # Create new players with same population but different startegy distribution
-        newPlayers = []
-        for i in range(0, len(players)):
-            if(alpha == -1): prob = 1 - alphas[players[i].getName()]
-            else: prob = (1 - alpha)
-            if(random.uniform(0, 1) >= prob):
-                # flip a coin for each player to select his new strategy based on the 'spinner'
-                _id = int(np.random.choice(spinner))
-                newPlayers.append(strategyGenerator(idStrat[_id]))
-            # or dont change strategy
-            else: newPlayers.append(strategyGenerator(players[i].getName()))
-        iterPlayers.append(newPlayers)
-        players = newPlayers
+        
     return iterPlayers, iterScores, totals

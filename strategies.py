@@ -128,7 +128,7 @@ class Grudger(Player):
     at any point the opponent has defected."""
     def __init__(self):
         Player.__init__(self)
-        self.name = 'gradger'
+        self.name = 'grudger'
 
     def play(self):
         if len(self.history)==0:
@@ -137,7 +137,7 @@ class Grudger(Player):
             if 0 in self.history:
                 return 0
             else:
-                return 1
+                return 1  
 
 class GoByMajority(Player):
     """A player examines the history of the opponent:

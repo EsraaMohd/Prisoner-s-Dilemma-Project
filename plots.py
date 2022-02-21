@@ -16,27 +16,27 @@ def barPlot(players, scores):
     for x in range(len(bins)):
         counts.append(playersNames.count(bins[x]))
     
-    startigies_avg = [0] * len(bins)
+    startegies_avg = [0] * len(bins)
     for i in range(len(playersNames)):
         for x in range(len(bins)):
             if(bins[x] == playersNames[i]):
-                startigies_avg[x]+=avg_scores[i]
+                startegies_avg[x]+=avg_scores[i]
     
-    for x in range(len(startigies_avg)):
-        startigies_avg[x] = startigies_avg[x]/counts[x]
+    for x in range(len(startegies_avg)):
+        startegies_avg[x] = starteges_avg[x]/counts[x]
     
     
     fig=plt.figure(figsize=(14, 4), dpi= 80, facecolor='w', edgecolor='k')
     plt.figure(1)
-    y_pos = np.arange(len(startigies_avg))
-    plt.bar(y_pos, startigies_avg, align='center', alpha=0.5, width=0.5)
+    y_pos = np.arange(len(startegies_avg))
+    plt.bar(y_pos, startegies_avg, align='center', alpha=0.5, width=0.5)
     plt.xticks(y_pos, bins)
     plt.xlabel('Name')
     plt.ylabel('Average score')
     plt.title('Players with average scores')
     plt.show()
 
-def plot_cunsum(players_score_matrix, players,ax1):
+def plot_cumsum(players_score_matrix, players,ax1):
     players_len= len(players_score_matrix)
     turns=len(players_score_matrix[0])
     x = range(1,turns+1)
@@ -67,14 +67,14 @@ def plot_box_multiple(scores,players, NUM_REPETITIONS,ax2):
         playersNames.append(players[i].getName())
         finalScore.append(scores[i])
     ax2.boxplot(finalScore,showmeans=True)
-    plt.xticks(range(1,len(players)+1), playersNames)
+    plt.xticks(range(0,len(players)), playersNames)
     plt.ylabel('Reward')
     plt.title("Means Scores for {} iterations".format(NUM_REPETITIONS))
 
 
 def plot_two_functions(scores,players, NUM_REPETITIONS):
     fig, (ax1,ax2) = plt.subplots(1,2,figsize=(10, 4))
-    plot_cunsum(scores,players,ax1)
+    plot_cumsum(scores,players,ax1)
     plot_box_multiple(scores,players,10,ax2)
     plt.tight_layout() 
     plt.show()
@@ -99,7 +99,7 @@ def plot_iterPlayers(iterPlayers, ax):
         b = lambda: random.randint(20,200)
         color = '#{:02x}{:02x}{:02x}'.format(r(), g(), b())
         y = np.asarray(strats[strat])
-        x = range(1,iterations+1)
+        x = range(0,iterations)
         ax.plot(x, y, 'k--', linewidth=1.5, label=strat, color=color)
     # tidy up the figure
     ax.grid(True)
